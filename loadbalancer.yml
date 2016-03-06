@@ -1,0 +1,11 @@
+---
+  - hosts: loadbalancer
+    become: true
+    become_user: root
+    become_method: sudo
+    tasks:
+      - name: Install NGINX
+        yum: name=nginx state=present update_cache=yes
+        
+      - name: Start NGINX Service
+        service: name=nginx state=started enabled=yes

@@ -1,0 +1,32 @@
+---
+  - hosts: webserver
+    become: true
+    become_user: root
+    become_method: sudo
+    tasks:
+      - name: Install Webserver Components
+        yum: name={{item}} state=present update_cache=yes
+        with_items:
+          - httpd
+          - mod_wsgi-python27
+          - python27-pip
+          - python27-virtualenv
+          
+      - name: Start httpd Service
+        service: name=httpd state=started enabled=yes
+
+      - name: Copy Application Files
+        copy: src=demo/app/ dest=/var/www/demo mode=0755
+        notify: Restart httpd
+        
+      - name: Copy httpd Configuration File
+        copy: src=demo/demo.conf dest=/etc/httpd/conf.d/demo.conf mode=0755
+        notify: Restart httpd
+        
+      - name: Setup Python Virtual Environment
+        pip: requirements=/var/www/demo/requirements.txt virtualenv=/var/www/demo/.venv
+        notify: Restart httpd
+        
+    handlers:
+      - name: Restart httpd
+        service: name=httpd state=restarted

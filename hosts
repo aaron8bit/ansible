@@ -1,0 +1,19 @@
+#Ansible hosts file
+
+# Amazon elastic IPs
+
+[loadbalancer]
+lb01.exscrument.com
+
+[webserver]
+app01.exscrument.com
+app02.exscrument.com
+
+[awsservers]
+lb01.exscrument.com
+app01.exscrument.com
+app02.exscrument.com
+
+[control]
+control ansible_connection=local
+

@@ -1,0 +1,8 @@
+---
+  - hosts: awsservers
+    become: true
+    become_user: root
+    become_method: sudo
+    tasks:
+      - name: Update Hosts
+        yum: name=* state=latest

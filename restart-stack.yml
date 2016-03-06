@@ -1,0 +1,24 @@
+---
+  - hosts: loadbalancer
+    become: true
+    tasks:
+      - name: Stop NGINX Service
+        service: name=nginx state=stopped
+
+  - hosts: webserver
+    become: true
+    tasks:
+      - name: Stop httpd Service
+        service: name=httpd state=stopped
+        
+  - hosts: webserver
+    become: true
+    tasks:
+      - name: Start httpd Service
+        service: name=httpd state=started
+        
+  - hosts: loadbalancer
+    become: true
+    tasks:
+      - name: Start NGINX Service
+        service: name=nginx state=started
