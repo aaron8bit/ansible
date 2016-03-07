@@ -9,3 +9,15 @@
         
       - name: Start NGINX Service
         service: name=nginx state=started enabled=yes
+
+      - name: Configure NGINX
+        template: src=nginx/nginx.conf.j2 dest=/etc/nginx/conf.d/demo.conf mode=0644
+        notify: Restart NGINX
+        
+      - name: Fix Default nginx.conf
+        copy: src=nginx/nginx.conf dest=/etc/nginx/nginx.conf mode=0644
+        notify: Restart NGINX
+        
+    handlers:
+      - name: Restart NGINX
+        service: name=nginx state=restarted

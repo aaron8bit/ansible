@@ -9,7 +9,7 @@ hostname = socket.gethostname()
 
 @app.route('/')
 def index():
-  return 'Hello, from sunny %s!\n' % hostname
+  return 'Connected to server %s.\n' % hostname
 
 @app.route('/db')
 def dbtest():
@@ -17,7 +17,7 @@ def dbtest():
       db.create_all()
   except Exception as e:
       return e.message + '\n'
-  return 'Database Connected from %s!\n' % hostname
+  return 'Database connected from %s.\n' % hostname
 
 if __name__ == '__main__':
   app.run()
