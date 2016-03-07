@@ -11,6 +11,8 @@
           - mod_wsgi-python27
           - python27-pip
           - python27-virtualenv
+          - MySQL-python27
+          - mysql56
           
       - name: Start httpd Service
         service: name=httpd state=started enabled=yes
