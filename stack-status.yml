@@ -1,0 +1,18 @@
+---
+- hosts: loadbalancer
+  become: true
+  tasks:
+    - name: Verify NGINX Status
+      command: service nginx status
+
+    - name: Verify NGINX is Listening
+      wait_for: host={{ ansible_eth0.ipv4.address }} port=80 timeout=3
+
+- hosts: webserver
+  become: true
+  tasks:
+    - name: Verify httpd Status
+      command: service httpd status
+
+    - name: Verify httpd is Listening
+      wait_for: host={{ ansible_eth0.ipv4.address }} port=80 timeout=3
