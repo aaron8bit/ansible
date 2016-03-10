@@ -1,0 +1,78 @@
+- hosts: localhost
+  connection: local
+
+  vars:
+    # define the instances that make up the system, these are used in
+    # with_items loops below
+    aja_lb_instances:
+      - 'aja-loadbalacer-1'
+    aja_app_instances:
+      - 'aja-application-1'
+      - 'aja-application-2'
+    aja_rds_instances:
+      - 'aja-database-1'
+    # define subnet variables for each tier, this is to force instances
+    # into a custom VPC, VPC and subnets were previously created
+    aja_subnet_dmz: subnet-0726ac71
+    aja_subnet_app: subnet-3a27ad4c
+    aja_subnet_db_group: default-vpc-6383a007
+    # define security group variables for each tier, security groups were
+    # previously created
+    aja_security_dmz: 'AJA DMZ Security'
+    aja_security_app: 'AJA Internal Security'
+    aja_security_rds: 'AJA RDS Security'
+    # set some basic AWS config items
+    aja_region: us-east-1
+    aja_key_name: AJA-Key
+
+  # PROVISION SERVERS
+  tasks:
+
+    - name: Launch Application Servers
+      ec2:
+         region: "{{ aja_region }}"
+         key_name: "{{ aja_key_name }}"
+         vpc_subnet_id: "{{ aja_subnet_app }}"
+         group: "{{ aja_security_app }}"
+         instance_type: t2.micro
+         image: ami-8fcee4e5
+         wait: true
+         instance_tags:
+            Name: "{{ item }}"
+            Tier: application
+      with_items: "{{ aja_app_instances }}"
+
+    - name: Launch Loadbalancers
+      ec2:
+         region: "{{ aja_region }}"
+         key_name: "{{ aja_key_name }}"
+         vpc_subnet_id: "{{ aja_subnet_dmz }}"
+         group: "{{ aja_security_dmz }}"
+         instance_type: t2.micro
+         image: ami-8fcee4e5
+         wait: true
+         instance_tags:
+            Name: "{{ item }}"
+            Tier: loadbalancer
+      with_items: "{{ aja_lb_instances }}"
+
+# commented out while I figure out how to pass IPs of new instances
+# into the configuration management process
+#    - name: Launch Databases
+#      rds:
+#        region: "{{ aja_region }}"
+#        subnet: "{{ aja_subnet_db_group }}"
+#        vpc_security_groups: "{{ aja_security_rds }}"
+#        command: create
+#        instance_name: "{{ item }}"
+#        db_engine: MySQL
+#        size: 5
+#        instance_type: db.t2.micro
+#        username: mysqluser
+#        password: mysqluserpassx
+#        wait: true
+#        # tags require a boto update, figure this out later
+#        #tags:
+#        #  Name: "{{ item }}"
+#        #  Tier: database
+#      with_items: "{{ aja_rds_instances }}"
