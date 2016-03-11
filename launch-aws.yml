@@ -1,26 +1,28 @@
+---
 - hosts: localhost
   connection: local
 
   vars:
     # define the instances that make up the system, these are used in
     # with_items loops below
-    aja_lb_instances:
-      - 'aja-loadbalacer-1'
-    aja_app_instances:
-      - 'aja-application-1'
-      - 'aja-application-2'
-    aja_rds_instances:
-      - 'aja-database-1'
+    # OKAY - with_items loops are broken, running with a hard launch
+    aja_lb_instance: aja-loadbalacer-1
+    aja_lb_instance_eip: 52.7.89.141
+    aja_app_instance1: aja-application-1
+    aja_app_instance2: aja-application-2
+    aja_app_instance_eip1: 52.21.133.3
+    aja_app_instance_eip2: 52.23.145.253
+    aja_rds_instance: aja-database-1
     # define subnet variables for each tier, this is to force instances
     # into a custom VPC, VPC and subnets were previously created
     aja_subnet_dmz: subnet-0726ac71
     aja_subnet_app: subnet-3a27ad4c
     aja_subnet_db_group: default-vpc-6383a007
     # define security group variables for each tier, security groups were
-    # previously created
+    # previously created, RDS requires VPC specific security groups
     aja_security_dmz: 'AJA DMZ Security'
     aja_security_app: 'AJA Internal Security'
-    aja_security_rds: 'AJA RDS Security'
+    aja_security_rds: 'sg-ac67c6d4'
     # set some basic AWS config items
     aja_region: us-east-1
     aja_key_name: AJA-Key
@@ -28,7 +30,25 @@
   # PROVISION SERVERS
   tasks:
 
-    - name: Launch Application Servers
+    - name: Launch Database (No Waiting)
+      rds:
+        region: "{{ aja_region }}"
+        subnet: "{{ aja_subnet_db_group }}"
+        vpc_security_groups: "{{ aja_security_rds }}"
+        command: create
+        instance_name: "{{ aja_rds_instance }}"
+        db_engine: MySQL
+        size: 5
+        instance_type: db.t2.micro
+        username: mysqluser
+        password: mysqluserpassx
+        wait: false
+        # adding tags require a boto update, figure this out later
+        #tags:
+        #  Name: "{{ item }}"
+        #  Tier: database
+
+    - name: Launch Application Server 1
       ec2:
          region: "{{ aja_region }}"
          key_name: "{{ aja_key_name }}"
@@ -38,11 +58,41 @@
          image: ami-8fcee4e5
          wait: true
          instance_tags:
-            Name: "{{ item }}"
+            Name: "{{ aja_app_instance1 }}"
             Tier: application
-      with_items: "{{ aja_app_instances }}"
+      register: ec2
 
-    - name: Launch Loadbalancers
+    # <sigh> I hate that I can't make this work dynamically
+    - name: Hard Assign EIP to App Server 1
+      ec2_eip:
+        region: "{{ aja_region }}"
+        device_id: "{{ item.id }}"
+        ip: "{{ aja_app_instance_eip1 }}"
+      with_items: "{{ ec2.instances }}"
+
+    - name: Launch Application Server 2
+      ec2:
+         region: "{{ aja_region }}"
+         key_name: "{{ aja_key_name }}"
+         vpc_subnet_id: "{{ aja_subnet_app }}"
+         group: "{{ aja_security_app }}"
+         instance_type: t2.micro
+         image: ami-8fcee4e5
+         wait: true
+         instance_tags:
+            Name: "{{ aja_app_instance2 }}"
+            Tier: application
+      register: ec2
+
+    # <sigh> I hate that I can't make this work dynamically
+    - name: Hard Assign EIP to App Server 2
+      ec2_eip:
+        region: "{{ aja_region }}"
+        device_id: "{{ item.id }}"
+        ip: "{{ aja_app_instance_eip2 }}"
+      with_items: "{{ ec2.instances }}"
+
+    - name: Launch Loadbalancer
       ec2:
          region: "{{ aja_region }}"
          key_name: "{{ aja_key_name }}"
@@ -52,27 +102,45 @@
          image: ami-8fcee4e5
          wait: true
          instance_tags:
-            Name: "{{ item }}"
+            Name: "{{ aja_lb_instance }}"
             Tier: loadbalancer
-      with_items: "{{ aja_lb_instances }}"
+      register: ec2
 
-# commented out while I figure out how to pass IPs of new instances
-# into the configuration management process
-#    - name: Launch Databases
-#      rds:
-#        region: "{{ aja_region }}"
-#        subnet: "{{ aja_subnet_db_group }}"
-#        vpc_security_groups: "{{ aja_security_rds }}"
-#        command: create
-#        instance_name: "{{ item }}"
-#        db_engine: MySQL
-#        size: 5
-#        instance_type: db.t2.micro
-#        username: mysqluser
-#        password: mysqluserpassx
-#        wait: true
-#        # tags require a boto update, figure this out later
-#        #tags:
-#        #  Name: "{{ item }}"
-#        #  Tier: database
-#      with_items: "{{ aja_rds_instances }}"
+    # <sigh> I hate that I can't make this work dynamically
+    - name: Hard Assign EIP to Loadbalancer
+      ec2_eip:
+        region: "{{ aja_region }}"
+        device_id: "{{ item.id }}"
+        ip: "{{ aja_lb_instance_eip }}"
+      with_items: "{{ ec2.instances }}"
+      #with_items:
+      #  - "{{ ec2.results }}"
+      #  - "{{ aja_lb_instances_eips }}"
+
+    - name: Waiting for Database - THIS MIGHT TAKE A WHILE...
+      local_action: rds command=facts region="{{ aja_region }}"
+                    instance_name="{{ aja_rds_instance }}"
+      register: rds
+    #- debug: var=rds
+      until: rds.instance.status == "available"
+      retries: 30
+      delay: 60
+
+    - name: Get Database Info
+      local_action: rds command=facts region="{{ aja_region }}"
+                    instance_name="{{ aja_rds_instance }}"
+      register: rds
+
+    #######################################################
+    # There is a bug in boto 2.20 included with ubuntu
+    # had to upgrade to 2.39 before this would work
+    #   pip install --upgrade --user boto
+    #######################################################
+    - name: Register Database CNAME in Route53
+      route53:
+        command: create
+        zone: exscrument.com
+        record: db01.exscrument.com
+        type: CNAME
+        value: "{{ rds.instance.endpoint }}"
+        overwrite: yes
