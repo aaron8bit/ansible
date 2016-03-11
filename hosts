@@ -1,6 +1,6 @@
-#Ansible hosts file
+# Ansible hosts file
 
-# Amazon elastic IPs
+# Amazon Elastic IPs
 
 [loadbalancer]
 lb01.exscrument.com
@@ -14,6 +14,6 @@ lb01.exscrument.com
 app01.exscrument.com
 app02.exscrument.com
 
-[control]
-control ansible_connection=local
+#[control]
+#control ansible_connection=local
 

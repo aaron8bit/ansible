@@ -2,7 +2,7 @@ activate_this = '/var/www/demo/.venv/bin/activate_this.py'
 execfile(activate_this, dict(__file__=activate_this))
 
 import os
-os.environ['DATABASE_URI'] = 'mysql://mysqluser:mysqluserpassx@db01.exscrument.com/testdb'
+os.environ['DATABASE_URI'] = 'mysql://wordpressuser:wordpresspassx@db01.exscrument.com/wordpressdb'
 
 import sys
 sys.path.insert(0, '/var/www/demo')
