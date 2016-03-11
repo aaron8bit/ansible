@@ -1,0 +1,33 @@
+---
+
+# set some basic AWS config items
+aja_region: us-east-1
+aja_key_name: AJA-Key
+
+# define the instances that make up the system, these are used in
+# with_items loops below
+# OKAY - with_items loops are broken, running with a hard launch
+aja_lb_instance: aja-loadbalacer-1
+aja_lb_instance_eip: 52.7.89.141
+aja_app_instance1: aja-application-1
+aja_app_instance2: aja-application-2
+aja_app_instance_eip1: 52.21.133.3
+aja_app_instance_eip2: 52.23.145.253
+aja_rds_instance: aja-database-4
+
+# set some database specific items, encrypt this later
+aja_database_name: wordpressdb
+aja_database_user: "{{ vault_aja_database_user }}"
+aja_database_pass: "{{ vault_aja_database_pass }}"
+
+# define subnet variables for each tier, this is to force instances
+# into a custom VPC, VPC and subnets were previously created
+aja_subnet_dmz: subnet-0726ac71
+aja_subnet_app: subnet-3a27ad4c
+aja_subnet_db_group: default-vpc-6383a007
+
+# define security group variables for each tier, security groups were
+# previously created, RDS requires VPC specific security groups
+aja_security_dmz: 'AJA DMZ Security'
+aja_security_app: 'AJA Internal Security'
+aja_security_rds: 'sg-ac67c6d4'

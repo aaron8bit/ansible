@@ -13,6 +13,10 @@
   copy: src=demo/app/ dest=/var/www/demo mode=0755
   notify: Restart httpd
 
+- name: Configure demo.wsqi File
+  template: src=roles/demo/templates/demo.wsqi.j2 dest=/var/www/demo/demo.wsqi mode=0755
+  notify: Restart httpd
+
 - name: Copy httpd Configuration File
   copy: src=demo/demo.conf dest=/etc/httpd/conf.d/demo.conf mode=0755
   notify: Restart httpd

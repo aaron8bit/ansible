@@ -2,10 +2,6 @@
 - hosts: localhost
   connection: local
 
-  vars:
-    aja_rds_instance: aja-database-1
-    aja_region: us-east-1
-
   tasks:
   - name: Get RDS Info
     local_action: rds command=facts region="{{ aja_region }}"
