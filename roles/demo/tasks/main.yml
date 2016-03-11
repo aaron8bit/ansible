@@ -14,7 +14,7 @@
   notify: Restart httpd
 
 - name: Configure demo.wsqi File
-  template: src=roles/demo/templates/demo.wsqi.j2 dest=/var/www/demo/demo.wsqi mode=0755
+  template: src=roles/demo/templates/demo.wsgi.j2 dest=/var/www/demo/demo.wsgi mode=0755
   notify: Restart httpd
 
 - name: Copy httpd Configuration File
