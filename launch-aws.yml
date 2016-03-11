@@ -12,7 +12,7 @@
     aja_app_instance2: aja-application-2
     aja_app_instance_eip1: 52.21.133.3
     aja_app_instance_eip2: 52.23.145.253
-    aja_rds_instance: aja-database-2
+    aja_rds_instance: aja-database-1
     aja_database_name: wordpressdb
     aja_database_user: wordpressuser
     aja_database_pass: wordpresspassx
@@ -47,10 +47,10 @@
         username: "{{ aja_database_user }}"
         password: "{{ aja_database_pass }}"
         wait: false
-        # adding tags require a boto update, figure this out later
-        #tags:
-        #  Name: "{{ item }}"
-        #  Tier: database
+        tags:
+          Name: "{{ aja_rds_instance }}"
+          Tier: database
+          Project: aja
 
     - name: Launch Application Server 1
       ec2:
@@ -69,6 +69,7 @@
          instance_tags:
             Name: "{{ aja_app_instance1 }}"
             Tier: application
+            Project: aja
       register: ec2
 
     # <sigh> I hate that I can't make this work dynamically
@@ -96,6 +97,7 @@
          instance_tags:
             Name: "{{ aja_app_instance2 }}"
             Tier: application
+            Project: aja
       register: ec2
 
     # <sigh> I hate that I can't make this work dynamically
@@ -123,6 +125,7 @@
          instance_tags:
             Name: "{{ aja_lb_instance }}"
             Tier: loadbalancer
+            Project: aja
       register: ec2
 
     # <sigh> I hate that I can't make this work dynamically
