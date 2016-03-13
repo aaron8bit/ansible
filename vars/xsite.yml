@@ -1,0 +1,50 @@
+---
+# Definition of VPC intended for use with launch-vpc.yml
+
+project_name: xsite
+project_environment: test
+project_region: us-east-1
+project_az1: "{{ project_region }}e"
+project_az2: "{{ project_region }}d"
+
+vpc_cidr_block: 10.1.0.0/16
+
+vpc_resource_tags:
+  Name: "{{ project_name }}-vpc"
+  Environment: "{{ project_environment }}"
+  Project: "{{ project_name }}"
+
+internet_gateway: true
+
+subnets:
+  - cidr: 10.1.1.0/24
+    az: "{{ project_az1 }}"
+    resource_tags:
+      Name: "{{ project_name }}-dmz-1"
+      Environment: "{{ project_environment }}"
+      Tier: public
+      Project: "{{ project_name }}"
+
+  - cidr: 10.1.2.0/24
+    az: "{{ project_az2 }}"
+    resource_tags:
+      Name: "{{ project_name }}-dmz-2"
+      Environment: "{{ project_environment }}"
+      Tier: public
+      Project: "{{ project_name }}"
+
+  - cidr: 10.1.3.0/24
+    az: "{{ project_az1 }}"
+    resource_tags:
+      Name: "{{ project_name }}-internal-1"
+      Environment: "{{ project_environment }}"
+      Tier: private
+      Project: "{{ project_name }}"
+
+  - cidr: 10.1.4.0/24
+    az: "{{ project_az2 }}"
+    resource_tags:
+      Name: "{{ project_name }}-internal-2"
+      Environment: "{{ project_environment }}"
+      Tier: private
+      Project: "{{ project_name }}"

@@ -1,0 +1,33 @@
+---
+# launch-vpc.yml
+- hosts: localhost
+
+  tasks:
+    # This file defines the VPC being created
+    - include_vars: vars/xsite.yml
+
+    - name: Get Existing VPC Facts
+      ec2_vpc_net_facts:
+        region: "{{ project_region }}"
+      register: vpclist
+    #- debug: msg="{{ vpclist['vpcs'] }}"
+
+    - name: Verify VPC for "{{ vpc_cidr_block }}" Does Not Exist
+      fail: msg="VPC Already Exists"
+      when: vpc_cidr_block == item.cidr_block
+      with_items: "{{ vpclist.vpcs }}"
+
+    - name: Create VPC
+      ec2_vpc:
+        region: "{{ project_region }}"
+        state: present
+        cidr_block: "{{ vpc_cidr_block }}"
+        resource_tags: "{{ vpc_resource_tags }}"
+        internet_gateway: yes
+        subnets: "{{ subnets }}"
+        wait: true
+      register: vpc
+    #- debug: msg="{{ vpc }}"
+
+    - name: Write out a temporary file for mapping subnet to id
+      template: src=templates/vpc-proj-env-subnets.j2 dest=vars/{{ project_name }}-{{ project_environment }}-subnets.yml
