@@ -6,14 +6,20 @@
 # VPC CIDR 10.1.0.0/16
 
 # CIDR 10.1.1.0/24
-subnet_xsite-dmz-1: subnet-5156256c
+subnet_xsite-dmz-1: subnet-85c4b7b8
 
 # CIDR 10.1.2.0/24
-subnet_xsite-dmz-2: subnet-063d942c
+subnet_xsite-dmz-2: subnet-3f42ea15
 
 # CIDR 10.1.3.0/24
-subnet_xsite-internal-1: subnet-5056256d
+subnet_xsite-internal-1: subnet-87c4b7ba
 
 # CIDR 10.1.4.0/24
-subnet_xsite-internal-2: subnet-043d942e
+subnet_xsite-internal-2: subnet-3d42ea17
+
+# CIDR 10.1.5.0/24
+subnet_xsite-database-1: subnet-86c4b7bb
+
+# CIDR 10.1.6.0/24
+subnet_xsite-database-2: subnet-3042ea1a
 

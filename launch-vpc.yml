@@ -23,7 +23,7 @@
         state: present
         cidr_block: "{{ vpc_cidr_block }}"
         resource_tags: "{{ vpc_resource_tags }}"
-        internet_gateway: yes
+        internet_gateway: "{{ vpc_internet_gateway }}"
         subnets: "{{ subnets }}"
         wait: true
       register: vpc
@@ -31,3 +31,34 @@
 
     - name: Write out a temporary file for mapping subnet to id
       template: src=templates/vpc-proj-env-subnets.j2 dest=vars/{{ project_name }}-{{ project_environment }}-subnets.yml
+
+
+    - name: Create DMZ Security Group
+      ec2_group:
+        name: "{{ security_ssh_name }}"
+        description: DMZ Security Group
+        vpc_id: "{{ vpc.vpc.id }}"
+        #vpc_id: "{{ lookup('aws_vpc_id_from_name', (project_region, vpc_name)) }}"
+        region: "{{ project_region }}"
+        rules: "{{ security_ssh_rule }}"
+
+#    - name: Create Route Table
+#      ec2_vpc:
+#        region: "{{ project_region }}"
+#        cidr_block: "{{ vpc_cidr_block }}"
+#        resource_tags: "{{ item.0.resource_tags }}"
+#        internet_gateway: "{{ item.0.internet_gateway }}"
+#        subnets: "{{ item.0.subnets }}"
+#        route_tables:
+#          - subnets: "{{ item.0.subnets | get_subnets('Tier', 'public', 'cidr') }}"
+#            routes:
+#              - dest: 0.0.0.0/0
+#                gw: igw
+#          - subnets: "{{ item.0.subnets | get_subnets('Tier', 'private', 'cidr') }}"
+#            routes:
+#              - dest: 0.0.0.0/0
+#                gw: "{{ item.1.instance_ids[0] }}"
+#      with_together:
+#        - "{{ vpc_list }}"
+#        - "{{ ec2_out.results }}"
+#      register: ec2_vpc_out

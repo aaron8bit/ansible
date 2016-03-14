@@ -7,14 +7,15 @@ project_region: us-east-1
 project_az1: "{{ project_region }}e"
 project_az2: "{{ project_region }}d"
 
+vpc_name: "{{ project_name }}-vpc"
 vpc_cidr_block: 10.1.0.0/16
 
 vpc_resource_tags:
-  Name: "{{ project_name }}-vpc"
+  Name: "{{ vpc_name }}"
   Environment: "{{ project_environment }}"
   Project: "{{ project_name }}"
 
-internet_gateway: true
+vpc_internet_gateway: true
 
 subnets:
   - cidr: 10.1.1.0/24
@@ -48,3 +49,41 @@ subnets:
       Environment: "{{ project_environment }}"
       Tier: private
       Project: "{{ project_name }}"
+
+  - cidr: 10.1.5.0/24
+    az: "{{ project_az1 }}"
+    resource_tags:
+      Name: "{{ project_name }}-database-1"
+      Environment: "{{ project_environment }}"
+      Tier: private
+      Project: "{{ project_name }}"
+
+  - cidr: 10.1.6.0/24
+    az: "{{ project_az2 }}"
+    resource_tags:
+      Name: "{{ project_name }}-database-2"
+      Environment: "{{ project_environment }}"
+      Tier: private
+      Project: "{{ project_name }}"
+
+security_dmz_name: "{{ project_name }}-security-dmz"
+security_dmz_rule:
+  - proto: tcp
+    from_port: 80
+    to_port: 80
+    cidr_ip: 0.0.0.0/0
+
+security_ssh_name: "{{ project_name }}-security-ssh"
+security_ssh_rule:
+  - proto: tcp
+    from_port: 22
+    to_port: 22
+    cidr_ip: 0.0.0.0/0
+
+routes_tables:
+  - subnets:
+    - "10.1.1.0/24"
+    - "10.1.2.0/24"
+    routes:
+    - dest: 0.0.0.0/0
+      gw: igw
