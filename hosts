@@ -9,11 +9,17 @@ lb01.exscrument.com
 app01.exscrument.com
 app02.exscrument.com
 
-[awsservers]
+[allservers]
 lb01.exscrument.com
 app01.exscrument.com
 app02.exscrument.com
 
+[terminate_ec2]
+lb01.exscrument.com
+app01.exscrument.com
+app02.exscrument.com
+
+[terminate_rds]
+
 #[control]
 #control ansible_connection=local
-
