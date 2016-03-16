@@ -66,19 +66,30 @@ subnets:
       Tier: private
       Project: "{{ project_name }}"
 
-security_dmz_name: "{{ project_name }}-security-dmz"
-security_dmz_rule:
-  - proto: tcp
-    from_port: 80
-    to_port: 80
-    cidr_ip: 0.0.0.0/0
+vpc_security_groups:
 
-security_ssh_name: "{{ project_name }}-security-ssh"
-security_ssh_rule:
-  - proto: tcp
-    from_port: 22
-    to_port: 22
-    cidr_ip: 0.0.0.0/0
+  - security_group_name: "{{ project_name }}-http-internet"
+    security_group_rule:
+    - proto: tcp
+      from_port: 80
+      to_port: 80
+      cidr_ip: 0.0.0.0/0
+
+  - security_group_name: "{{ project_name }}-ssh-internet"
+    security_group_rule:
+    - proto: tcp
+      from_port: 22
+      to_port: 22
+      cidr_ip: 0.0.0.0/0
+
+  - security_group_name: "{{ project_name }}-rds-internal"
+    security_group_rule:
+    - proto: tcp
+      from_port: 3306
+      to_port: 3306
+      cidr_ip: "{{ vpc_cidr_block }}"
+
+vpc_internal_sg: "{{ project_name }}-rds-internal"
 
 routes_tables:
   - subnets:
