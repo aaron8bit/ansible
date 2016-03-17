@@ -4,7 +4,7 @@
 
   tasks:
     # This file defines the VPC being created
-    - include_vars: vars/xsite.yml
+    - include_vars: vars/xsite-vpc.yml
 
     - name: Get Existing VPC Facts
       ec2_vpc_net_facts:
@@ -25,6 +25,7 @@
         resource_tags: "{{ vpc_resource_tags }}"
         internet_gateway: "{{ vpc_internet_gateway }}"
         subnets: "{{ subnets }}"
+        route_tables: "{{ vpc_route_tables }}"
         wait: true
       register: vpc
     #- debug: msg="{{ vpc }}"
