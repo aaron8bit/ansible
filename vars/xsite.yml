@@ -77,6 +77,13 @@ vpc_security_groups:
       to_port: 80
       cidr_ip: 0.0.0.0/0
 
+  - security_group_name: "{{ project_name }}-http-access"
+    security_group_rule:
+    - proto: tcp
+      from_port: 80
+      to_port: 80
+      cidr_ip: "{{ vpc_cidr_block }}"
+
   - security_group_name: "{{ project_name }}-ssh-internet"
     security_group_rule:
     - proto: tcp
@@ -115,6 +122,44 @@ aja_lb_instance_eip: 52.7.89.141
 app_instance1: "{{ project_name }}-application-1"
 app_instance1_hostname: "{{ project_name }}-app01"
 app_instance1_domain: "exscrument.com"
+
+instance_list:
+
+  - name: "{{ project_name }}-loadbalancer-1"
+    hostname: "{{ project_name }}-lb01"
+    domain: "exscrument.com"
+    subnet: "{{ project_name }}-dmz-1"
+    groups:
+      - "{{ project_name }}-ssh-internet"
+      - "{{ project_name }}-http-internet"
+    tags:
+      Name: "{{ project_name }}-lb01"
+      Tier: loadbalancer
+      Project: "{{ project_name }}"
+
+  - name: "{{ project_name }}-application-1"
+    hostname: "{{ project_name }}-app01"
+    domain: "exscrument.com"
+    subnet: "{{ project_name }}-internal-1"
+    groups:
+      - "{{ project_name }}-ssh-internet"
+      - "{{ project_name }}-http-access"
+    tags:
+      Name: "{{ project_name }}-app01"
+      Tier: application
+      Project: "{{ project_name }}"
+
+  - name: "{{ project_name }}-application-2"
+    hostname: "{{ project_name }}-app02"
+    domain: "exscrument.com"
+    subnet: "{{ project_name }}-internal-2"
+    groups:
+      - "{{ project_name }}-ssh-internet"
+      - "{{ project_name }}-http-access"
+    tags:
+      Name: "{{ project_name }}-app02"
+      Tier: application
+      Project: "{{ project_name }}"
 
 
 aja_app_instance2: "{{ project_name }}-application-2"
