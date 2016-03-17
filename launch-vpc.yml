@@ -3,8 +3,8 @@
 - hosts: localhost
 
   tasks:
-    # This file defines the VPC being created
-    - include_vars: vars/xsite-vpc.yml
+    # This file defines the entire site architecture
+    - include_vars: vars/xsite.yml
 
     - name: Get Existing VPC Facts
       ec2_vpc_net_facts:

@@ -4,7 +4,7 @@
 
   # LAUNCH SERVERS
   tasks:
-    # This file defines the VPC
+    # This file defines the entire site architecture
     - include_vars: vars/xsite.yml
 
     # Launch the database first because it takes FOREVER
@@ -53,20 +53,17 @@
             Project: "{{ project_name }}"
       register: newinstance
 
-    # <sigh> I hate that I can't make this work dynamically
-    - name: Hard Assign EIP to App Server 1
+    - name: Create/Assign EIP to App Server 1
       ec2_eip:
         region: "{{ project_region }}"
-        #device_id: "{{ item.id }}"
+        device_id: "{{ newinstance.instances[0].id }}"
         in_vpc: yes
         reuse_existing_ip_allowed: yes
         state: present
-        #ip: "{{ aja_app_instance_eip1 }}"
-        device_id: "{{ newinstance.instances[0].id }}"
       register: newinstance_eip
     - debug: var=newinstance_eip.public_ip
 
-    - name: Register in Route53
+    - name: Register New EIP in Route53
       route53:
         command: create
         zone: "{{ app_instance1_domain }}"
@@ -75,13 +72,11 @@
         value: "{{ newinstance_eip.public_ip }}"
         overwrite: yes
 
-#    - name: Wait for SSH to start
-#      wait_for:
-#        host: "{{ newinstance_eip.public_ip }}"
-#        port: 22
-#        timeout: 300
-#        sudo: false
-#      delegate_to: "127.0.0.1"
+# THIS WAS TEST CODE, IT WORKS
+#    - name: Wait for SSH Available
+#      become: false
+#      local_action: wait_for host={{ app_instance1_hostname }}.{{ app_instance1_domain }}
+#                    port=22 state=started delay=5 timeout=300
 
     # - name: Launch Application Server 2
     #   ec2:

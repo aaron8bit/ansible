@@ -93,7 +93,7 @@ vpc_security_groups:
 
 vpc_internal_sg: "{{ project_name }}-rds-internal"
 
-vpc_routes_tables:
+vpc_route_tables:
   - subnets:
     - "10.1.1.0/24"
     - "10.1.2.0/24"
