@@ -30,8 +30,10 @@
       register: vpc
     #- debug: msg="{{ vpc }}"
 
-    - name: Write out a temporary file for mapping subnet to id
-      template: src=templates/vpc-proj-env-subnets.j2 dest=vars/{{ project_name }}-{{ project_environment }}-subnets.yml
+# I was going to use this to feed launch-ec2 but lookup scripts
+# are much much better
+#    - name: Write out a temporary file for mapping subnet to id
+#      template: src=templates/vpc-proj-env-subnets.j2 dest=vars/{{ project_name }}-{{ project_environment }}-subnets.yml
 
     #- debug: msg="{{ vpc_security_groups }}"
     - name: Create EC2 Security Groups
