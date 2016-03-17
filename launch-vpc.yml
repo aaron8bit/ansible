@@ -30,6 +30,18 @@
       register: vpc
     #- debug: msg="{{ vpc }}"
 
+    # Add or change a subnet group
+    - name: Create RDS Subnet Group
+      rds_subnet_group:
+        region: "{{ project_region }}"
+        state: present
+        name: "{{ vpc_rds_subnet_group }}"
+        description: "{{ project_region }} RDS Subnet Group"
+        subnets:
+          - "{{ lookup('aws_subnet_ids_from_names', (project_region, '{{project_name}}-database-1')) }}"
+          - "{{ lookup('aws_subnet_ids_from_names', (project_region, '{{project_name}}-database-2')) }}"
+      register: rdsgroup
+
 # I was going to use this to feed launch-ec2 but lookup scripts
 # are much much better
 #    - name: Write out a temporary file for mapping subnet to id
@@ -46,24 +58,24 @@
         rules: "{{ item.security_group_rule }}"
       with_items: "{{ vpc_security_groups }}"
       register: secgroups
-    - debug: msg="{{ secgroups }}"
+    #- debug: msg="{{ secgroups }}"
 
 # NOT WORKING, NEED TO BUILD A VPC SG TO CONNECT APP TIER TO RDS
 # WRONG MODULE???
-    - name: Create RDS Security Groups
-      ec2_group:
-        name: test
-        description: test
-        #vpc_id: "{{ vpc.vpc.id }}"
-        vpc_id: "{{ lookup('aws_vpc_id_from_name', (project_region, vpc_name)) }}"
-        region: "{{ project_region }}"
-        rules:
-        - proto: tcp
-          from_port: 3306
-          to_port: 3306
-          cidr_ip: "{{ lookup('aws_secgroup_ids_from_names', (project_region, 'sg-1940d461')) }}"
-      register: secgroups2
-    - debug: msg="{{ secgroups2 }}"
+    # - name: Create RDS Security Groups
+    #   ec2_group:
+    #     name: "{{ project_name }}-rds"
+    #     description: "{{ project_name }}-rds"
+    #     #vpc_id: "{{ vpc.vpc.id }}"
+    #     vpc_id: "{{ lookup('aws_vpc_id_from_name', (project_region, vpc_name)) }}"
+    #     region: "{{ project_region }}"
+    #     rules:
+    #     - proto: tcp
+    #       from_port: 3306
+    #       to_port: 3306
+    #       cidr_ip: "{{ lookup('aws_secgroup_ids_from_names', (project_region, 'sg-1940d461')) }}"
+    #   register: secgroupsrds
+    #- debug: msg="{{ secgroups2 }}"
 
 #    - name: Create Route Table
 #      ec2_vpc:
