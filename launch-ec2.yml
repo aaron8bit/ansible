@@ -5,7 +5,8 @@
   # LAUNCH SERVERS
   tasks:
     # This file defines the entire site architecture
-    - include_vars: vars/xsite.yml
+    - include_vars: vars/xsite/vars
+    - include_vars: vars/xsite/vault
 
     # Launch the database first because it takes FOREVER
     - name: Launch Database (No Waiting)

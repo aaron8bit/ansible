@@ -3,16 +3,16 @@
 # Amazon Elastic IPs
 
 [loadbalancer]
-lb01.exscrument.com
+xsite-lb01.exscrument.com
 
 [webserver]
-app01.exscrument.com
-app02.exscrument.com
+xsite-app01.exscrument.com
+xsite-app02.exscrument.com
 
 [allservers]
-lb01.exscrument.com
-app01.exscrument.com
-app02.exscrument.com
+xsite-lb01.exscrument.com
+xsite-app01.exscrument.com
+xsite-app02.exscrument.com
 
 [terminate_ec2]
 lb01.exscrument.com

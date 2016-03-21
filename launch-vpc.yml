@@ -30,7 +30,9 @@
       register: vpc
     #- debug: msg="{{ vpc }}"
 
-    # Add or change a subnet group
+    # If you rebuild a VPC that was previously deleted, make sure there
+    # is no existing subnet group with the same name, currently this has
+    # to be cleaned up manualy and the error presented is not useful
     - name: Create RDS Subnet Group
       rds_subnet_group:
         region: "{{ project_region }}"
