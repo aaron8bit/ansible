@@ -1,4 +1,5 @@
 ---
+
 - hosts: loadbalancer
   become: true
   tasks:
@@ -19,9 +20,11 @@
 
 - hosts: localhost
   connection: local
+
   tasks:
+    - include_vars: vars/xsite/vars
     - name: Verify Database is Available (Direct AWS Connection)
-      local_action: rds command=facts region="{{ aja_region }}"
-                    instance_name="{{ aja_rds_instance }}"
+      local_action: rds command=facts region="{{ project_region }}"
+                    instance_name="{{ rds_instance_name }}"
       register: rds
     #- debug: var=rds

@@ -1,4 +1,7 @@
 ---
+- include_vars: vars/xsite/vars
+- include_vars: vars/xsite/vault
+
 # tasks file for demo
 - name: Install Webserver Components
   yum: name={{item}} state=present update_cache=yes

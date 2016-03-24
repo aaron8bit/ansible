@@ -121,11 +121,17 @@ vpc_route_tables:
 # define the instances that make up the system, these are used in
 # with_items loops below
 
+dns_tld: "exscrument.com"
+dns_frontend: "www.{{ dns_tld }}"
+dns_backend_list:
+
+  - hostname: "{{ project_name }}-lb01"
+
 instance_list:
 
   - name: "{{ project_name }}-loadbalancer-1"
     hostname: "{{ project_name }}-lb01"
-    domain: "exscrument.com"
+    domain: "{{ dns_tld }}"
     subnet: "{{ project_name }}-dmz-1"
     groups:
       - "{{ project_name }}-ssh-internet"
@@ -137,11 +143,12 @@ instance_list:
 
   - name: "{{ project_name }}-application-1"
     hostname: "{{ project_name }}-app01"
-    domain: "exscrument.com"
+    domain: "{{ dns_tld }}"
     subnet: "{{ project_name }}-internal-1"
     groups:
       - "{{ project_name }}-ssh-internet"
       - "{{ project_name }}-http-access"
+      - "{{ project_name }}-http-internet"
     tags:
       Name: "{{ project_name }}-app01"
       Tier: application
@@ -149,11 +156,12 @@ instance_list:
 
   - name: "{{ project_name }}-application-2"
     hostname: "{{ project_name }}-app02"
-    domain: "exscrument.com"
+    domain: "{{ dns_tld }}"
     subnet: "{{ project_name }}-internal-2"
     groups:
       - "{{ project_name }}-ssh-internet"
       - "{{ project_name }}-http-access"
+      - "{{ project_name }}-http-internet"
     tags:
       Name: "{{ project_name }}-app02"
       Tier: application
@@ -162,7 +170,7 @@ instance_list:
 # set some database specific items, encrypt this later
 rds_instance_name: "{{ project_name }}-database-1"
 rds_instance_hostname: "{{ project_name }}-db01"
-rds_instance_domain: "exscrument.com"
+rds_instance_domain: "{{ dns_tld }}"
 database_name: "{{ project_name }}db"
 database_user: "{{ vault_database_user }}"
 database_pass: "{{ vault_database_pass }}"

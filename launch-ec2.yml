@@ -36,7 +36,7 @@
           Tier: database
           Project: aja
       register: rdsout
-    - debug: msg="{{ rdsout }}"
+    #- debug: msg="{{ rdsout }}"
 
     - name: Launch EC2 Instances
       ec2:
@@ -73,7 +73,7 @@
       register: newinstances_eips
     #- debug: msg="{{ newinstances_eips }}"
 
-    - name: Register New EIP in Route53
+    - name: Register New EIPs in Route53
       route53:
         command: create
         zone: "{{ item.0.domain }}"
@@ -86,6 +86,16 @@
         - "{{ newinstances_eips.results }}"
       register: route53out
     #- debug: msg="{{ route53out }}"
+
+    - name: Register TLD in route53
+      route53:
+        command: create
+        zone: "{{ dns_tld }}"
+        record: "{{ dns_frontend }}"
+        type: CNAME
+        value: "{{ item.hostname }}.{{ dns_tld }}"
+        overwrite: yes
+      with_items: "{{ dns_backend_list }}"
 
 # THIS WAS TEST CODE, IT WORKS
 #    - name: Wait for SSH Available

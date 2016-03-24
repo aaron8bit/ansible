@@ -22,14 +22,14 @@
   tasks:
     - name: Reboot Database - THIS CAN TAKE UP TO 10 MINUTES
       rds:
-        region: "{{ aja_region }}"
+        region: "{{ project_region }}"
         command: reboot
-        instance_name: "{{ aja_rds_instance }}"
+        instance_name: "{{ rds_instance_name }}"
         wait: true
 
     - name: Verify Database is Available
-      local_action: rds command=facts region="{{ aja_region }}"
-                    instance_name="{{ aja_rds_instance }}"
+      local_action: rds command=facts region="{{ project_region }}"
+                    instance_name="{{ rds_instance_name }}"
       register: rds
       until: rds.instance.status == "available"
       retries: 20

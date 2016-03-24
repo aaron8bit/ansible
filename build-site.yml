@@ -1,3 +1,4 @@
 ---
+#- include: build-dns.yml
 - include: build-loadbalancer.yml
 - include: build-webserver.yml
